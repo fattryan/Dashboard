@@ -1,0 +1,36 @@
+
+	<div id="testcollections" style="width: 600px;"></div>
+
+	<!-- jQuery for testing collections charts -->
+	<script type="text/javascript" charset="utf-8">
+	$(function () {
+	  new Highcharts.Chart({
+	    chart: { renderTo: 'testcollections' },
+	    title: { text: 'Test Collections' },
+		plotOptions: {
+		        series: {
+		            dataLabels: {
+		                enabled: true,
+		                formatter: function() {
+		                    return this.y;
+		                }
+		            }
+		        }
+		    },
+
+	    series: [{
+		name: 'Collections',
+		type: 'area',
+		color: '#5b81b4',
+		data: <%= Quarter.where('quarters.client_id=?', @quarter.client_id).map(&:collections) %> 
+		},
+		{
+		name:'Average Collections',
+		type: 'area',
+		color: '#999',
+		data: <%= Quarter.includes(:client).group('clients.specialty', 'quarters.year', 'quarters.quarter')
+		.average('quarters.collections').values.map(&:to_f).to_json %>
+		}]
+	  });
+	});
+	</script>

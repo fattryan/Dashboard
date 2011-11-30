@@ -1,0 +1,69 @@
+<%= form_for(@quarter) do |f| %>
+  <% if @quarter.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@quarter.errors.count, "error") %> prohibited this quarter from being saved:</h2>
+
+      <ul>
+      <% @quarter.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+<div id="quarterinputform">
+
+ <div class="field">
+    <%= f.hidden_field :client_id, :id => 'hiddenid' %> <!-- added to collect current id -->
+  </div>
+  <div class="field">
+    <%= f.label :quarter %><br />
+    <%= f.number_field :quarter %>
+  </div>
+  <div class="field">
+    <%= f.label :year %><br />
+    <%= f.number_field :year %>
+  </div>
+  <div class="field">
+    <%= f.label :production %><br />
+    <%= f.number_field :production %>
+  </div>
+  <div class="field">
+    <%= f.label :collections %><br />
+    <%= f.number_field :collections %>
+  </div>
+  <div class="field">
+    <%= f.label :total_visits %><br />
+    <%= f.number_field :total_visits %>
+  </div>
+  <div class="field">
+    <%= f.label :new_patients %><br />
+    <%= f.number_field :new_patients %>
+  </div>
+  <div class="field">
+    <%= f.label :net_worth %><br />
+    <%= f.number_field :net_worth %>
+  </div>
+  <div class="field">
+    <%= f.label :income %><br />
+    <%= f.number_field :income %>
+  </div>
+  <div class="field">
+    <%= f.label :qualified_savings %><br />
+    <%= f.number_field :qualified_savings %>
+  </div>
+  <div class="field">
+    <%= f.label :taxable_savings %><br />
+    <%= f.number_field :taxable_savings %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+
+</div> <!-- end quarter input form div -->
+
+<script style="text/javascript">
+// create dynamic table id based on rails generated id
+var balancesheetid = jQuery('#quarterinputform').children().attr('id');
+</script>

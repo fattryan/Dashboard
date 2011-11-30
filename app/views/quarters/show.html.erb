@@ -1,0 +1,351 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <%= @quarter.client.name %>, <%= @quarter.client.specialty %>
+</p>
+<p>
+  Q<%= @quarter.quarter %> <%=	@quarter.year %>
+</p>
+
+<div class="charts" style="width:990px">
+<div id="networth_chart" style="width: 495px; height: 300px; float:left"></div>
+<div id="savingsrate_chart" style="width: 495px; height: 300px; float:right"></div>
+</div>
+
+<table>
+	<tbody>
+		<tr>
+			<td colspan="1" rowspan ="2">
+				<div id="coll_chart" style="width: 600px; height: 400px; float:left"></div>				
+			</td>
+			<td>
+				<div id="newvisits_chart" style="width: 390px; height: 200px; float:left"></div>				
+			</td>
+		<tr>
+			<td>
+				<div id="totalvisits_chart" style="width: 440px; height: 200px; float:right"></div>				
+			</td>
+		</tr>
+		</tr>
+	</tbody>
+</table>
+
+<div id="testcollections" style="width: 600px;"></div>
+
+<p>
+  <b>Production:</b>
+  <%= number_to_currency(@quarter.production, :precision => 0) %> 
+</p>
+
+<p>
+  <b>Collections:</b>
+  <%= @quarter.collections %>
+</p>
+
+<b><%= @quarter.client.name %>'s savings rate: </b>
+<%= Quarter.where('quarters.client_id=?', @quarter.client_id).map(&:personal_savings_rate) %>
+<br>
+
+<b><%= @quarter.client.name %>'s collections numbers: </b>
+<%= Quarter.where('quarters.client_id=?', @quarter.client_id).map(&:collections) %>
+<br>
+<b><%= @quarter.client.specialty %> Average Historic Collections:</b>
+<%= Quarter.includes(:client).group('clients.specialty', 'quarters.year', 'quarters.quarter')
+.limit(4).order('quarters.created_at DESC')
+.average('quarters.collections').values.map(&:to_f).to_json %>
+<br>
+<p>
+  <b>Total visits:</b>
+  <%= @quarter.total_visits %>
+</p>
+
+<p>
+  <b>New patients:</b>
+  <%= @quarter.new_patients %>
+</p>
+
+<p>
+  <b>Net worth:</b>
+  <%= @quarter.net_worth %>
+</p>
+
+<p>
+  <b>Income:</b>
+  <%= @quarter.income %>
+</p>
+
+<p>
+  <b>Qualified savings:</b>
+  <%= @quarter.qualified_savings %>
+</p>
+
+<p>
+  <b>Taxable savings:</b>
+  <%= @quarter.taxable_savings %>
+</p>
+
+<p>
+	<b>Total Savings:</b>
+	<%= @quarter.total_savings %>
+</p>
+
+<p>
+	<b>Personal Savings Rate History:</b>
+	<%= number_to_percentage(@quarter.personal_savings_rate, :precision => 0) %> |
+	<%= number_to_percentage(@oneago_rate, :precision => 0) %> |
+	<%= number_to_percentage(@twoago_rate, :precision => 0) %> |
+	<%= number_to_percentage(@threeago_rate, :precision => 0) %> |
+</p>
+
+<%= link_to 'Edit', edit_quarter_path(@quarter) %> |
+<%= link_to 'Back', clients_path %> |
+<%= link_to 'PDF', { :action => "show", :format => :pdf } %> |
+
+<!-- jQuery for testing collections charts -->
+<script type="text/javascript" charset="utf-8">
+$(function () {
+  new Highcharts.Chart({
+    chart: { renderTo: 'testcollections' },
+    title: { text: 'Test Collections' },
+	plotOptions: {
+	        series: {
+	            dataLabels: {
+	                enabled: true,
+	                formatter: function() {
+	                    return this.y;
+	                }
+	            }
+	        }
+	    },
+
+    series: [{
+	name: 'Collections',
+	type: 'area',
+	color: '#5b81b4',
+	data: <%= Quarter.where('quarters.client_id=?', @quarter.client_id).map(&:collections) %> 
+	},
+	{
+	name:'Average Collections',
+	type: 'area',
+	color: '#999',
+	data: <%= Quarter.includes(:client).group('clients.specialty', 'quarters.year', 'quarters.quarter')
+	.average('quarters.collections').values.map(&:to_f).to_json %>
+	}]
+  });
+});
+</script>
+
+<!-- jQuery for Collection charts -->
+<script type="text/javascript" charset="utf-8">
+$(function () {
+  new Highcharts.Chart({
+    chart: { renderTo: 'coll_chart' },
+    title: { text: 'Collections' },
+	plotOptions: {
+	        series: {
+	            dataLabels: {
+	                enabled: true,
+	                formatter: function() {
+	                    return this.y;
+	                }
+	            }
+	        }
+	    },
+		tooltip: {
+		         shared: true,
+		         crosshairs: true
+		      },
+	xAxis: {
+	         categories: [
+	 'Q<%= @threeqtrago.sum(:quarter) %> <%= @threeqtrago.sum(:year) %>',
+	 'Q<%= @twoqtrago.sum(:quarter) %> <%= @twoqtrago.sum(:year) %>',
+	 'Q<%= @lastqtr.sum(:quarter) %> <%= @lastqtr.sum(:year) %>',
+	 'Q<%= @quarter.quarter %> <%= @quarter.year%>']
+	      },
+
+    series: [{
+	name: 'Collections',
+	type: 'spline',
+	color: '#5b81b4',
+	data: [<%= @threeago_coll %>, <%= @twoago_coll %>, <%= @oneago_coll %>, <%= @quarter.collections %>]
+    },
+	{
+	name:'Average Collections',
+	type: 'spline',
+	color: '#999',
+	data: [<%= @threeqtragoavg_coll %>, <%= @twoqtragoavg_coll %>,  <%= @lastqtravg_coll %>, <%= @thisqtravg_coll %> ]	
+	}]
+  });
+});
+</script>
+
+
+<!-- jQuery for  New Visits charts -->
+<script type="text/javascript" charset="utf-8">
+$(function () {
+  new Highcharts.Chart({
+    chart: { renderTo: 'newvisits_chart' },
+    title: { text: 'New Patient Visits' },
+	plotOptions: {
+	        series: {
+	            dataLabels: {
+	                enabled: true,
+	                formatter: function() {
+	                    return this.y;
+	                }
+	            }
+	        }
+	    },
+		tooltip: {
+		         shared: true,
+		         crosshairs: true
+		      },
+	xAxis: {
+	         categories: [
+	 'Q<%= @threeqtrago.sum(:quarter) %> <%= @threeqtrago.sum(:year) %>',
+	 'Q<%= @twoqtrago.sum(:quarter) %> <%= @twoqtrago.sum(:year) %>',
+	 'Q<%= @lastqtr.sum(:quarter) %> <%= @lastqtr.sum(:year) %>',
+	 'Q<%= @quarter.quarter %> <%= @quarter.year%>']
+	      },
+    series: [{
+	  name: 'New Patients',
+	  type: 'column',
+	  color: '#C43713',
+      data: [<%= @threeago_new%>, <%= @twoago_new %>, <%= @oneago_new %>, <%= @quarter.new_patients %>]
+	},
+	
+	{
+	  name: 'Average New Patients',
+	  type: 'column',
+	  color: '#999',
+      data: [<%= @threeqtragoavg_new %>, <%= @twoqtragoavg_new %>,  <%= @lastqtravg_new %>, <%= @thisqtravg_new %> ]
+	}]
+  });
+});
+</script>
+
+<!-- jQuery for  Total Visits charts -->
+<script type="text/javascript" charset="utf-8">
+$(function () {
+  new Highcharts.Chart({
+    chart: { renderTo: 'totalvisits_chart' },
+    title: { text: 'Total Patient Visits' },
+	plotOptions: {
+	        series: {
+	            dataLabels: {
+	                enabled: true,
+	                formatter: function() {
+	                    return this.y;
+	                }
+	            }
+	        }
+	    },
+		tooltip: {
+		         shared: true,
+		         crosshairs: true
+		      },
+	xAxis: {
+	         categories: [
+	 'Q<%= @threeqtrago.sum(:quarter) %> <%= @threeqtrago.sum(:year) %>',
+	 'Q<%= @twoqtrago.sum(:quarter) %> <%= @twoqtrago.sum(:year) %>',
+	 'Q<%= @lastqtr.sum(:quarter) %> <%= @lastqtr.sum(:year) %>',
+	 'Q<%= @quarter.quarter %> <%= @quarter.year%>']
+	      },
+    series: [{
+	name: 'Total Visits',
+    type: 'column',
+	color: '#5D5A3A',
+	data: [<%= @threeago_tot %>, <%= @twoago_tot %>, <%= @oneago_tot %>, <%= @quarter.total_visits %>]
+	},
+	
+	{
+	name: 'Average Total Visits',
+	type: 'column',
+	color: '#999',
+	data: [<%= @threeqtragoavg_tot %>, <%= @twoqtragoavg_tot %>,  <%= @lastqtravg_tot %>, <%= @thisqtravg_tot %> ]
+    }]
+  });
+});
+</script>
+
+<!-- jQuery for  Net Worth charts -->
+<script type="text/javascript" charset="utf-8">
+$(function () {
+  new Highcharts.Chart({
+    chart: { renderTo: 'networth_chart' },
+    title: { text: 'Net Worth' },
+	plotOptions: {
+	        series: {
+	            dataLabels: {
+	                enabled: true,
+	                formatter: function() {
+	                    return this.y;
+	                }
+	            }
+	        }
+	    },
+		tooltip: {
+		         shared: true,
+		         crosshairs: true
+		      },
+	xAxis: {
+	         categories: [
+	 'Q<%= @threeqtrago.sum(:quarter) %> <%= @threeqtrago.sum(:year) %>',
+	 'Q<%= @twoqtrago.sum(:quarter) %> <%= @twoqtrago.sum(:year) %>',
+	 'Q<%= @lastqtr.sum(:quarter) %> <%= @lastqtr.sum(:year) %>',
+	 'Q<%= @quarter.quarter %> <%= @quarter.year%>']
+	      },
+    series: [{
+	name: 'Your Net Worth',
+    type: 'areaspline',
+	color: '#afbd22',
+	data: [<%= @threeago_worth %>, <%= @twoago_worth %>, <%= @oneago_worth %>, <%= @quarter.net_worth %>]
+	}]
+  });
+});
+</script>
+
+<!-- jQuery for  Savings Rate charts -->
+<script type="text/javascript" charset="utf-8">
+$(function () {
+  new Highcharts.Chart({
+    chart: { renderTo: 'savingsrate_chart' },
+    title: { text: 'Savings Rate' },
+	plotOptions: {
+	        series: {
+	            dataLabels: {
+	                enabled: true,
+	                formatter: function() {
+	                    return this.y;
+	                }
+	            }
+	        }
+	    },
+		tooltip: {
+		         shared: true,
+		         crosshairs: true
+		      },
+	xAxis: {
+	         categories: [
+	 'Q<%= @threeqtrago.sum(:quarter) %> <%= @threeqtrago.sum(:year) %>',
+	 'Q<%= @twoqtrago.sum(:quarter) %> <%= @twoqtrago.sum(:year) %>',
+	 'Q<%= @lastqtr.sum(:quarter) %> <%= @lastqtr.sum(:year) %>',
+	 'Q<%= @quarter.quarter %> <%= @quarter.year%>']
+	      },
+    series: [{
+	name: 'Your Savings Rate',
+    type: 'column',
+	color: '#5D5A3A',
+	data: [<%= @threeago_rate %>, <%= @twoago_rate %>, <%= @oneago_rate %>, <%= @quarter.personal_savings_rate.to_i %>]
+	},
+	
+	{
+	name: 'Average Savings Rate',
+	type: 'spline',
+	color: '#999',
+	data: [<%= @threeqtragoavg_rate %>, <%= @twoqtragoavg_rate %>,  <%= @lastqtravg_rate %>, <%= @thisqtravg_rate %> ]
+    }]
+  });
+});
+</script>
+

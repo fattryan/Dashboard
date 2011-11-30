@@ -1,0 +1,21 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/Fixtures.html
+
+one:
+  production: 1
+  collections: 1
+  total_visits: 1
+  new_patients: 1
+  net_worth: 1
+  income: 1
+  qualified_savings: 1
+  taxable_savings: 1
+
+two:
+  production: 1
+  collections: 1
+  total_visits: 1
+  new_patients: 1
+  net_worth: 1
+  income: 1
+  qualified_savings: 1
+  taxable_savings: 1

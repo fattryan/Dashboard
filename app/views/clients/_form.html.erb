@@ -1,0 +1,49 @@
+<%= form_for @client, :html => { :multipart => true } do |f| %>
+  <% if @client.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@client.errors.count, "error") %> prohibited this client from being saved:</h2>
+
+      <ul>
+      <% @client.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </div>
+
+<div class="field">
+    <%= f.label :birthday %><br />
+    <%= f.date_select :birthday, :end_year => 1950, :start_year => Time.now.year %>
+  </div>
+  <div class="field">
+    <%= f.label :specialty %><br />
+    <%= select("client", "specialty", {"General" => "General", "Orthodontist" => "Orthodontist", "Endodontist" => "Endodontist", "Oral/Maxil" => "Oral/Maxil", "Pediatric" => "Pediatric", "Periodontist" => "Periodontist"}) %>
+  </div>
+
+ <div class="field">
+    <%= f.label :business_name %><br />
+    <%= f.text_field :business_name %>
+  </div>
+
+ <div class="field">
+    <%= f.label :date_started %><br />
+    <%= f.date_select :date_started, :discard_day => true, :discard_month => true, :start_year => Time.now.year, :end_year => 1990 %>
+  </div>
+
+  <div class="field">
+    <%= f.label :email %><br />
+    <%= f.text_field :email %>
+  </div>
+ <div class="field">
+    <%= f.label :photo %><br />
+    <%= f.file_field :photo%>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

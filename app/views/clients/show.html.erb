@@ -1,0 +1,35 @@
+<p id="notice"><%= notice %></p>
+
+<%= image_tag @client.photo.url(:small) %>
+
+<p>
+  <b>Name:</b>
+  <%= @client.name %>
+</p>
+<p>
+  <b>Age:</b>
+  <%= @client.client_age %>
+</p>
+
+<p>
+  <b>Specialty:</b>
+  <%= @client.specialty %> at <%= @client.business_name%> since <%= @client.date_started.year %>
+</p>
+
+<p>
+  <b>Email:</b>
+  <%= @client.email %>
+</p>
+
+<p>
+  <b>Quarterly Reports:</b>
+  <% @quarter.each do |quarter| %>
+  <%= link_to "Q#{quarter.quarter} #{quarter.year}", quarter %>
+  <% end %>
+</p>
+
+
+<%= link_to 'Edit', edit_client_path(@client) %> |
+<%= link_to 'Back', clients_path %> |
+<%= link_to 'New Quarter',new_quarter_path(:id => @client.id) %>  <!-- added to collect current id and pass it to the new form being created - goes with "new" controller action -->
+

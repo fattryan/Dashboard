@@ -1,0 +1,39 @@
+<h1>Listing quarters</h1>
+
+<table>
+  <tr>
+	<th>Client ID </th>
+    <th>Production</th>
+    <th>Collections</th>
+    <th>Total visits</th>
+    <th>New patients</th>
+    <th>Net worth</th>
+    <th>Income</th>
+    <th>Qualified savings</th>
+    <th>Taxable savings</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @quarters.each do |quarter| %>
+  <tr>
+	<td><%= quarter.client_id %>
+    <td><%= quarter.production %></td>
+    <td><%= quarter.collections %></td>
+    <td><%= quarter.total_visits %></td>
+    <td><%= quarter.new_patients %></td>
+    <td><%= quarter.net_worth %></td>
+    <td><%= quarter.income %></td>
+    <td><%= quarter.qualified_savings %></td>
+    <td><%= quarter.taxable_savings %></td>
+    <td><%= link_to 'Show', quarter %></td>
+    <td><%= link_to 'Edit', edit_quarter_path(quarter) %></td>
+    <td><%= link_to 'Destroy', quarter, confirm: 'Are you sure?', method: :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Quarter', new_quarter_path %>
